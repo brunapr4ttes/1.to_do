@@ -5,8 +5,9 @@ import cors from "cors";
 //Importar conexão do banco
 import conn from "./config/conn.js"
 
+
 //importar os modelos
-import Tarefa from ".models/tarefaModel.js"
+import Tarefa from "./models/tarefaModel.js"
 
 //importação das rotas
 import tarefaRouter from "./routes/tarefaRouter.js"
@@ -22,6 +23,7 @@ app.use(express.json())
 
 //conexão com o banco
 conn.sync().then(() => {
+    console.log('oLÁ mUNDO')
     app.listen(PORT, () => {
         console.log(`SERVIDOR ON  http://localhost:${PORT}`)
     })

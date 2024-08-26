@@ -20,7 +20,8 @@ const Tarefa = conn.define("tarefas", {
         type: DataTypes.ENUM,
         values:["pendente", "concluida"]
     },
-}{
+},
+{
     tableName: "tarefas",
 });
 
