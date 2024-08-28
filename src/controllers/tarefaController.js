@@ -65,9 +65,44 @@ export const getTarefa = async (request, response)=>{
     const {id} = request.params
 
     try {
-        const tarefa = await Tarefa.findByPk(id)
+        const tarefa = await Tarefa.findOne({where: {id}});
+        if(tarefa === null){
+            response.status(404).json({message: "Tarefa não encontrada"})
+            return
+        }
         response.status(200).json(tarefa)
     } catch (error) {
         response.status(500).json({message: "Erro ao buscar tarefa"})
+    }
+}
+
+export const updateTarefa = async (request, response)=>{
+    const {} = request.params
+    const {tarefa, descricao, status} = request.body
+
+    if(!tarefa){
+        response.status(400).json({message: "A tarefa é obrigatória"});
+        return;
+    }
+    if(!descricao){
+        response.status(400).json({message: "A descrição é obrigatória"});
+        return;
+    }
+    if(!status){
+        response.status(400).json({message: "O status é obrigatória"});
+        return;
+    }
+
+    const tarefaAtualizada = {
+        tarefa,
+        descricao,
+        status
+    }
+
+    try {
+        await Tarefa.update(tarefaAtualizada, {where: {id}});
+        response.status(200).json({message: "Tarefa atualizada"});
+    } catch (error) {
+        response.status(500).json({message: "Erro ao atualizar tarefa"});
     }
 }
