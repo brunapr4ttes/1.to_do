@@ -13,6 +13,10 @@ const createSchema = z.object({
     .min(5, {message: "A descricao deve ter pelo menos 5 caracteres"})
 })
 
+const getSchema = z.object({
+    id: z.string().uuid({message: "Id da tarefa está inválido"})
+})
+
 // export const getAll = async (request, response)=>{
 //     try{
 //         const tarefas = await Tarefa.findAll()
@@ -85,6 +89,13 @@ if(!bodyValitation.success){
 }
 
 export const getTarefa = async (request, response)=>{
+    const paramValidator = getSchema.safeParse(request.params)
+    if(!paramValidator.success){
+        response.status(400).json({message: "", detalhes: formatZodError(paramValidator.error)
+        })
+        return
+    }
+
     const {id} = request.params
 
     try {
