@@ -1,4 +1,17 @@
 import Tarefa from "../models/tarefaModel.js"
+import { z } from "zod";
+import formatZodError from "../helpers/zodError.js";
+
+//validações com ZOD
+const createSchema = z.object({
+    tarefa:z
+    .string()
+    .min(3, {message: "A tarefa deve ter pelo menos 3 caracteres}"})
+    .transform((txt) => txt.toLowerCase()),
+
+    descricao: z.string()
+    .min(5, {message: "A descricao deve ter pelo menos 5 caracteres"})
+})
 
 // export const getAll = async (request, response)=>{
 //     try{
@@ -35,6 +48,16 @@ export const getAll = async (request, response)=>{
 }
 
 export const create = async (request, response)=>{
+//implementar a validacao
+const bodyValitation = createSchema.safeParse(request.body)
+if(!bodyValitation.success){
+    response.status(400).json({message: "Os dados recebidos do corpo da aplicação são inválidos",
+        detalhes: bodyValitation.error
+    })
+    return
+}
+
+
     const {tarefa, descricao} = request.body
     const  status = "pendente" 
     if(!tarefa){
