@@ -27,6 +27,17 @@ const getSchema = z.object({
 // };
 
 //tarefas?page=2&limit=10
+
+const burcarTarefaPorSituacaoSchema = z.object({
+    situacao: z.enum(["pendente", "concluida"])
+})
+
+const updateTarefaSchema = z.object({
+    terafa: z.string().min(3, {message: "A tarefa deve conter pelo menos 3 caracteres"}).transform((txt)=>txt.toLowerCase),
+    descricao: z.string().min(5, {message: "A tarefa deve conter pelo menos 5 caracteres"}).transform((txt)=>txt.toLowerCase),
+    situacao: z.enum(["pendente", "concluida"])
+})
+
 export const getAll = async (request, response)=>{
     const page = parseInt(request.query.page) || 1;
     const limit =  parseInt(request.query.limit) || 10;
@@ -111,21 +122,19 @@ export const getTarefa = async (request, response)=>{
 }
 
 export const updateTarefa = async (request, response)=>{
-    const {} = request.params
-    const {tarefa, descricao, status} = request.body
+    const paramValidator = getSchema.safeParse(request.params);
+    if(!paramValidator.success){
+        response.status(400).json({
+            message: "Numero de identificação está inválido",
+            detalhes: formatZodError(paramValidator.error),
+        })
+        return
+    }
 
-    if(!tarefa){
-        response.status(400).json({message: "A tarefa é obrigatória"});
-        return;
-    }
-    if(!descricao){
-        response.status(400).json({message: "A descrição é obrigatória"});
-        return;
-    }
-    if(!status){
-        response.status(400).json({message: "O status é obrigatória"});
-        return;
-    }
+    const updateValidator = updateTarefaSchema.safeParse(request.body)
+
+    const {id} = request.params
+    const {tarefa, descricao, status} = request.body
 
     const tarefaAtualizada = {
         tarefa,
@@ -142,6 +151,15 @@ export const updateTarefa = async (request, response)=>{
 }
 
 export const updateStatusTarefa = async (request, response)=>{
+    const paramValidator = getSchema.safeParse(request.params);
+    if(!paramValidator.success){
+        response.status(400).json({
+            message: "Numero de identificação está inválido",
+            detalhes: formatZodError(paramValidator.error),
+        })
+        return
+    }
+
     const {id} = request.params;
 
     try {
@@ -164,6 +182,15 @@ export const updateStatusTarefa = async (request, response)=>{
 };
 
 export const burcarTarefaPorSituacao = async (request, response) =>{
+const situacaoValidation = burcarTarefaPorSituacaoSchema.safeParse(request.params)
+if(!situacaoValidation.success){
+    response.status(400).json({
+        message: "Situação inválida",
+        details: formatZodError(situacaoValidation.error)
+    })
+    return
+}
+
     const {situacao} = request.params;
 
     if(situacao !== "pendente" && situacao !== "concluida"){
